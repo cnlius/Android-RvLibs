@@ -19,3 +19,9 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+-keepclasseswithmembers class * extends android.databinding.ViewDataBinding{
+    <methods>;
+}
+-dontwarn android.databinding.DataBindingUtil
+-dontwarn android.databinding.ViewDataBinding

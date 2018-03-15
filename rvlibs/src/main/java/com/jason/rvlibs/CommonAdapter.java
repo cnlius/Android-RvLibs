@@ -347,7 +347,7 @@ public class CommonAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
     /**
      * 重置加载更多
      *
-     * @attention 刷新时，必须在clear之前调用
+     * 刷新时，必须在clear之前调用
      */
     public void resetLoad() {
         isLoadEnabled = true;

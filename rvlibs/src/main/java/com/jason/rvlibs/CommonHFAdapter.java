@@ -249,7 +249,7 @@ public class CommonHFAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
      *
      * @param position adapter的position
      * @return
-     * @attention loadMoreView是dataItem的最后一项
+     * loadMoreView是dataItem的最后一项
      */
     private boolean isLoadMoreView(int position) {
         return onLoadMoreListener != null && position == getHeaderCount() + dataSet.size() - 1
@@ -336,7 +336,7 @@ public class CommonHFAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
     }
 
     /**
-     * @attention 如果用notifyXXRemoved清除，动画没结束前进行添加会报错
+     * 如果用notifyXXRemoved清除，动画没结束前进行添加会报错
      */
     public void clearHeaderView() {
         if (mHeaderViews.size() == 0) return;
@@ -488,7 +488,7 @@ public class CommonHFAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
     }
 
     /**
-     * @attention 包含footer时禁止上拉加载动作
+     * 包含footer时禁止上拉加载动作
      */
     public CommonHFAdapter<T> addOnLoadMoreListener(final RecyclerView recyclerView, final OnLoadMoreListener onLoadMoreListener) {
         this.onLoadMoreListener = onLoadMoreListener;
@@ -527,7 +527,7 @@ public class CommonHFAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
     /**
      * 重置加载更多
      *
-     * @attention 刷新时，必须在clear之前调用
+     * 刷新时，必须在clear之前调用
      */
     public void resetLoad() {
         isLoadEnabled = true;

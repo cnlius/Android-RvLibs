@@ -9,7 +9,7 @@ import android.util.Log;
 /**
  * recyclerView scroll to bottom listener
  *
- * @attention compat LinearLayoutManager、GridLayoutManager、StaggeredGridLayoutManager
+ * compat LinearLayoutManager、GridLayoutManager、StaggeredGridLayoutManager
  * Created by liusong on 2017/12/29.
  */
 

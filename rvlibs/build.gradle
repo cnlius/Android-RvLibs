@@ -1,5 +1,4 @@
 apply plugin: 'com.android.library'
-apply plugin: 'com.novoda.bintray-release'
 
 android {
     compileSdkVersion 26
@@ -18,10 +17,6 @@ android {
         }
     }
 
-    lintOptions {
-        abortOnError false
-    }
-
     dataBinding {
         enabled = true
     }
@@ -32,34 +27,3 @@ dependencies {
     implementation 'com.android.support:appcompat-v7:26.1.0'
     implementation 'com.android.support:recyclerview-v7:26.1.0'
 }
-
-publish {
-    userOrg = 'liusong'//bintray.com用户名
-    repoName = 'android' //仓库名
-    groupId = 'com.jason'//jcenter上的路径
-    artifactId = 'rvlibs'//项目名称
-    publishVersion = '0.0.1'//版本号
-    website = 'https://github.com/cnlius/Android-RvLibs'//网站
-    licences = ['Apache-2.0']
-}
-
-//生成jar包的任务，jar包不会包含资源文件
-//Copy类型
-task makeJar(type: Copy) {
-    //删除存在的
-    delete 'build/libs/rvlibs.jar'
-    //设置拷贝的文件
-    from('build/intermediates/bundles/release/')
-    //打进jar包后的文件目录
-    into('build/libs/')
-    //将classes.jar放入build/libs/目录下
-    //include ,exclude参数来设置过滤
-    //（我们只关心classes.jar这个文件）
-    include('classes.jar')
-    //重命名
-    rename('classes.jar', 'rvlibs.jar')
-}
-
-makeJar.dependsOn(build)
-//在终端执行生成JAR包
-// gradlew makeJar

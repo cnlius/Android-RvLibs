@@ -32,7 +32,7 @@ dependencies {
 publish {
     userOrg = 'liusong'//bintray.com用户名
     repoName = 'android' //仓库名
-    groupId = 'com.liusong.android'//jcenter上的路径
+    groupId = 'com.jason'//jcenter上的路径
     artifactId = 'rvlibs'//项目名称
     publishVersion = '0.0.1'//版本号
     website = 'https://github.com/cnlius/Android-RvLibs'//网站

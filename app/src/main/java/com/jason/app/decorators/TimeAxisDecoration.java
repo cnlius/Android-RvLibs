@@ -35,7 +35,9 @@ public class TimeAxisDecoration extends RecyclerView.ItemDecoration {
 
         mOffsetLeft = context.getResources().getDimension(R.dimen.timeline_item_offset_left);
         mNodeRadius = context.getResources().getDimension(R.dimen.timeline_item_node_radius);
-        mIcon = BitmapFactory.decodeResource(context.getResources(), R.mipmap.clock);
+
+
+        mIcon = BitmapFactory.decodeResource(context.getResources(), R.drawable.shape_circle_red);
         // 图片缩放于时间轴中间
         mIcon = Bitmap.createScaledBitmap(mIcon, (int) mNodeRadius * 2, (int) mNodeRadius * 2, false);
     }

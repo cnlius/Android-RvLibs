@@ -8,15 +8,16 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 /**
+ * 垂直item列表的分割线
  * Created by liusong on 2018/3/16.
  */
 
-public class SpaceDecoration extends RecyclerView.ItemDecoration {
+public class VerticalDecoration extends RecyclerView.ItemDecoration {
 
     private float mDividerHeight; // 分割线的高度
     private Paint mPaint; // 画笔
 
-    public SpaceDecoration() {
+    public VerticalDecoration() {
         mPaint = new Paint();
         mPaint.setAntiAlias(true);
         mPaint.setColor(Color.GREEN);
@@ -65,10 +66,11 @@ public class SpaceDecoration extends RecyclerView.ItemDecoration {
             if (index == 0) {
                 continue;
             }
-            float dividerTop = view.getTop() - mDividerHeight;
             float dividerLeft = parent.getPaddingLeft();
-            float dividerBottom = view.getTop();
+            float dividerTop = view.getTop() - mDividerHeight;
             float dividerRight = parent.getWidth() - parent.getPaddingRight();
+            float dividerBottom = view.getTop();
+
             // 绘制分割线
             canvas.drawRect(dividerLeft, dividerTop, dividerRight, dividerBottom, mPaint);
         }

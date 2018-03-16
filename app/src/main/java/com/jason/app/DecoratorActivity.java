@@ -11,7 +11,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.jason.app.databinding.ActivityDecoratorBinding;
-import com.jason.app.decorators.SpaceDecoration;
+import com.jason.app.decorators.TimeAxisDecoration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +35,7 @@ public class DecoratorActivity extends AppCompatActivity {
     }
 
     private void initView() {
-        mBinding.rv.addItemDecoration(new SpaceDecoration());
+        mBinding.rv.addItemDecoration(new TimeAxisDecoration(this));
 
         testAdapter = new TestAdapter();
         testAdapter.addData(list);

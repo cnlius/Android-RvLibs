@@ -36,8 +36,10 @@ public class TimeAxisDecoration extends RecyclerView.ItemDecoration {
         mOffsetLeft = context.getResources().getDimension(R.dimen.timeline_item_offset_left);
         mNodeRadius = context.getResources().getDimension(R.dimen.timeline_item_node_radius);
 
-
-        mIcon = BitmapFactory.decodeResource(context.getResources(), R.drawable.shape_circle_red);
+        // 使用shape时
+//        Drawable dAxis = ContextCompat.getDrawable(context, R.drawable.shape_circle_red);
+//        mIcon= ImageUtils.drawable2Bitmap(dAxis);
+        mIcon = BitmapFactory.decodeResource(context.getResources(), R.mipmap.clock);
         // 图片缩放于时间轴中间
         mIcon = Bitmap.createScaledBitmap(mIcon, (int) mNodeRadius * 2, (int) mNodeRadius * 2, false);
     }
@@ -89,7 +91,12 @@ public class TimeAxisDecoration extends RecyclerView.ItemDecoration {
 
             //绘制上半部轴线
             canvas.drawLine(upLineTopX, upLineTopY, upLineBottomX, upLineBottomY, mPaint);
-            canvas.drawBitmap(mIcon, centerX - mNodeRadius, centerY - mNodeRadius, mPaint);
+            // 绘制圆形作为时间轴的节点
+//            mPaint.setStyle(Paint.Style.STROKE); // 空心圆
+            canvas.drawCircle(centerX, centerY, mNodeRadius, mPaint);
+
+            // 绘制图片作为时间轴的节点
+//            canvas.drawBitmap(mIcon, centerX - mNodeRadius, centerY - mNodeRadius, mPaint);
 
             // 中心图下半部分轴线坐标
             float downLineTopX = centerX;

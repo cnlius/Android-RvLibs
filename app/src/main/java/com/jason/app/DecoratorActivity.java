@@ -12,7 +12,6 @@ import android.widget.TextView;
 
 import com.jason.app.databinding.ActivityDecoratorBinding;
 import com.jason.app.decorators.FlagDecoration;
-import com.jason.app.decorators.TimeAxisDecoration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,7 +48,7 @@ public class DecoratorActivity extends AppCompatActivity {
     }
 
 
-    public class TestAdapter extends RecyclerView.Adapter<TestAdapter.TestViewHolder> {
+    public class TestAdapter extends RecyclerView.Adapter<TestViewHolder> {
 
         private List<String> data = new ArrayList<>();
 
@@ -74,11 +73,13 @@ public class DecoratorActivity extends AppCompatActivity {
             return data.size();
         }
 
-        class TestViewHolder extends RecyclerView.ViewHolder {
 
-            public TestViewHolder(View itemView) {
-                super(itemView);
-            }
+    }
+
+    public class TestViewHolder extends RecyclerView.ViewHolder {
+
+        public TestViewHolder(View itemView) {
+            super(itemView);
         }
     }
 }

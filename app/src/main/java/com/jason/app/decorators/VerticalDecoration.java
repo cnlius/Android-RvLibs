@@ -8,7 +8,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 /**
- * 垂直item列表的分割线
+ * 在itemView之下绘制垂直item列表的分割线
  * Created by liusong on 2018/3/16.
  */
 
@@ -46,7 +46,7 @@ public class VerticalDecoration extends RecyclerView.ItemDecoration {
 
 
     /**
-     * 分割线着色
+     * 分割线着色（在itemView之下绘制）
      * onDraw方法针对RecyclerView本身
      * 在onDraw方法中遍历屏幕上可见的ItemView，分别获取它们的位置信息，然后分别的绘制对应的分割线
      *

@@ -13,7 +13,7 @@ import android.view.View;
 import com.jason.app.R;
 
 /**
- * 垂直列表时光轴
+ * 在itemView之下绘制垂直列表时光轴
  * Created by liusong on 2018/3/16.
  */
 
@@ -54,6 +54,12 @@ public class TimeAxisDecoration extends RecyclerView.ItemDecoration {
         outRect.left = (int) mOffsetLeft;
     }
 
+    /**
+     * 在itemView之下绘制
+     * @param canvas
+     * @param parent
+     * @param state
+     */
     @Override
     public void onDraw(Canvas canvas, RecyclerView parent, RecyclerView.State state) {
         super.onDraw(canvas, parent, state);

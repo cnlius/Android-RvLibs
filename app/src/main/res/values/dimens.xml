@@ -2,4 +2,5 @@
 <resources>
     <dimen name="timeline_item_offset_left">68dp</dimen>
     <dimen name="timeline_item_node_radius">16dp</dimen>
+    <dimen name="flag_left">15dp</dimen>
 </resources>

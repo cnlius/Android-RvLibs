@@ -11,7 +11,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.jason.app.databinding.ActivityDecoratorBinding;
-import com.jason.app.decorators.FlagDecoration;
+import com.jason.app.decorators.GroupDecoration;
+import com.jason.app.vo.GroupInfo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +26,20 @@ public class DecoratorActivity extends AppCompatActivity {
     private ActivityDecoratorBinding mBinding;
     private List<String> list = new ArrayList<>();
     private TestAdapter testAdapter;
+    private GroupDecoration.GroupInfoCallback callback = new GroupDecoration.GroupInfoCallback() {
+        @Override
+        public GroupInfo getGroupInfo(int position) {
+
+            /**
+             * 处理分组数据
+             * 每5个数据为一组
+             */
+            int groupId = position / 5; // 组号
+            int index = position % 5; // 组中索引
+            GroupInfo groupInfo = new GroupInfo(groupId, index,String.valueOf(groupId));
+            return groupInfo;
+        }
+    };
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -35,15 +50,18 @@ public class DecoratorActivity extends AppCompatActivity {
     }
 
     private void initView() {
-        mBinding.rv.addItemDecoration(new FlagDecoration(this));
+//        mBinding.rv.addItemDecoration(new FlagDecoration(this));
+        mBinding.rv.addItemDecoration(new GroupDecoration(this, callback));
 
         testAdapter = new TestAdapter();
         testAdapter.addData(list);
         mBinding.rv.setAdapter(testAdapter);
+
+
     }
 
     private void initData() {
-        list.addAll(DataUtils.createStringList(5));
+        list.addAll(DataUtils.createStringList(25));
         testAdapter.notifyDataSetChanged();
     }
 

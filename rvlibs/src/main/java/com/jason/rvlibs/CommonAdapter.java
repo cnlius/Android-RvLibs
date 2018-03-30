@@ -379,6 +379,10 @@ public class CommonAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
                 isLoadEnabled = true;
             } else {
                 isLoadEnabled = false;
+                if (isAlwaysShowLoadAll) {
+                    dataSet.add(null); // 加入一个null代表load item
+                    loadedAll();
+                }
             }
         } else { // 加载
             if (addDataSize == getPageSize()) {
@@ -387,6 +391,17 @@ public class CommonAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
                 loadedAll();
             }
         }
+    }
+
+    private boolean isAlwaysShowLoadAll; // 每次加载完成后是否一直显示加载完毕
+
+    /**
+     * 每次刷新结束判断是否加载完毕
+     * @param isAlways
+     */
+    public CommonAdapter<T> setAlwaysShowLoadAll(boolean isAlways) {
+        this.isAlwaysShowLoadAll = isAlways;
+        return this;
     }
 
     public CommonAdapter<T> addMultiItemSupport(MultiTypeItemSupport multiItemSupport) {

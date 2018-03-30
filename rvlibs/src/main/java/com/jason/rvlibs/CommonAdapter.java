@@ -159,8 +159,11 @@ public class CommonAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
      * @param gridLayoutManager layoutManager
      */
     private void compatGridLayoutManager(final GridLayoutManager gridLayoutManager) {
+        // 记录原始跨度对象
+        final GridLayoutManager.SpanSizeLookup oldLookup = gridLayoutManager.getSpanSizeLookup();
         // gridLayoutManager.getSpanCount()=gridLayoutManager的列数
         gridLayoutManager.setSpanCount(gridLayoutManager.getSpanCount());
+
         // 回调设置item的跨度（即表格中的某列跨几列）
         gridLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
             @Override
@@ -168,9 +171,8 @@ public class CommonAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
                 if (isOtherView(position)) {
                     return gridLayoutManager.getSpanCount();
                 } else { // 不需要兼容时，返回原始跨度
-                    GridLayoutManager.SpanSizeLookup spanSizeLookup = gridLayoutManager.getSpanSizeLookup();
-                    if (spanSizeLookup != null) {
-                        return spanSizeLookup.getSpanSize(position);
+                    if (oldLookup != null) {
+                        return oldLookup.getSpanSize(position);
                     } else {
                         return 1;
                     }
@@ -397,6 +399,7 @@ public class CommonAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
 
     /**
      * 每次刷新结束判断是否加载完毕
+     *
      * @param isAlways
      */
     public CommonAdapter<T> setAlwaysShowLoadAll(boolean isAlways) {

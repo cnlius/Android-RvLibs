@@ -208,7 +208,7 @@ public class CommonAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
     }
 
     private boolean isLoadMoreView(int position) {
-        return onLoadMoreListener != null && position == dataSet.size() - 1 && dataSet.get(position) == null;
+        return onLoadMoreListener != null && position == dataSet.size() - 1 && dataSet.size() > 0 && dataSet.get(position) == null;
     }
 
     public List<T> getData() {
@@ -346,7 +346,7 @@ public class CommonAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
 
     /**
      * 重置加载更多
-     *
+     * <p>
      * 刷新时，必须在clear之前调用
      */
     public void resetLoad() {

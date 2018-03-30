@@ -108,6 +108,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         View emptyView = LayoutInflater.from(this).inflate(R.layout.layout_no_data, mBinding.rv, false);
         adapter = new CommonHFAdapter<String>()
                 .setPageSize(5)
+                .setAlwaysShowLoadAll(true)
                 .addHeaderView(headerRed)
                 .addFooterView(footerCyan)
                 .setItemLayoutId(R.layout.item_text_test)
@@ -265,7 +266,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         adapter.resetLoad(); // 刷新时，必须在clear之前调用
                         adapter.clearData();
                     }
-                    tempData = DataUtils.createStringList(adapter.getData().size(), 5);
+                    tempData = DataUtils.createStringList(adapter.getData().size(), 3);
                 } else { // 加载
                     // 加载更多时，dataSet多了一个null作为loadMoreView的占位
                     tempData = DataUtils.createStringList(adapter.getData().size() - 1, 2);

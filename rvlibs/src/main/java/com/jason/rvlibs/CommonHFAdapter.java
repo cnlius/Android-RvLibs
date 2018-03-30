@@ -248,8 +248,7 @@ public class CommonHFAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
      * 是否是loadMoreView
      *
      * @param position adapter的position
-     * @return
-     * loadMoreView是dataItem的最后一项
+     * @return loadMoreView是dataItem的最后一项
      */
     private boolean isLoadMoreView(int position) {
         return onLoadMoreListener != null && position == getHeaderCount() + dataSet.size() - 1
@@ -526,7 +525,7 @@ public class CommonHFAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
 
     /**
      * 重置加载更多
-     *
+     * <p>
      * 刷新时，必须在clear之前调用
      */
     public void resetLoad() {
@@ -559,6 +558,10 @@ public class CommonHFAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
                 isLoadEnabled = true;
             } else {
                 isLoadEnabled = false;
+                if (getFooterCount() == 0 && isAlwaysShowLoadAll) {
+                    dataSet.add(null); // 加入一个null代表load item
+                    loadedAll();
+                }
             }
         } else { // 加载
             if (addDataSize == getPageSize()) {
@@ -567,6 +570,18 @@ public class CommonHFAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
                 loadedAll();
             }
         }
+    }
+
+    private boolean isAlwaysShowLoadAll; // 每次加载完成后是否一直显示加载完毕
+
+    /**
+     * 每次刷新结束判断是否加载完毕
+     *
+     * @param isAlways
+     */
+    public CommonHFAdapter<T> setAlwaysShowLoadAll(boolean isAlways) {
+        this.isAlwaysShowLoadAll = isAlways;
+        return this;
     }
 
     public CommonHFAdapter<T> addMultiItemSupport(MultiTypeItemSupport multiItemSupport) {

@@ -16,7 +16,14 @@
             <!--</intent-filter>-->
         <!--</activity>-->
 
-        <activity android:name=".DecoratorActivity">
+        <!--<activity android:name=".DecoratorActivity">-->
+            <!--<intent-filter>-->
+                <!--<action android:name="android.intent.action.MAIN" />-->
+                <!--<category android:name="android.intent.category.LAUNCHER" />-->
+            <!--</intent-filter>-->
+        <!--</activity>-->
+
+        <activity android:name=".GridListActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

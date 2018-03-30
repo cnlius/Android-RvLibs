@@ -12,7 +12,7 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.jason.app.databinding.ActivityMainBinding;
+import com.jason.app.databinding.ActivityListBinding;
 import com.jason.app.databinding.ItemImageTextBinding;
 import com.jason.app.databinding.ItemTextTestBinding;
 import com.jason.rvlibs.CommonHFAdapter;
@@ -20,9 +20,9 @@ import com.jason.rvlibs.ViewHolder;
 
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener, SwipeRefreshLayout.OnRefreshListener, CommonHFAdapter.OnLoadMoreListener {
+public class ListActivity extends AppCompatActivity implements View.OnClickListener, SwipeRefreshLayout.OnRefreshListener, CommonHFAdapter.OnLoadMoreListener {
 
-    private ActivityMainBinding mBinding;
+    private ActivityListBinding mBinding;
     private CommonHFAdapter<String> adapter;
     private static final int ITEM_TYPE_TEXT = 0x1;
     private static final int ITEM_TYPE_IMAGE_TEXT = 0x2;
@@ -30,12 +30,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
+        mBinding = DataBindingUtil.setContentView(this, R.layout.activity_list);
         initView();
         initData();
     }
 
-    private TextView headerRed, headerGreen, headerYellow,footerCyan,footerDkgray;
+    private TextView headerRed, headerGreen, headerYellow, footerCyan, footerDkgray;
 
     private void initView() {
         // --头部------------------------
@@ -162,7 +162,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .addOnItemClickListener(new CommonHFAdapter.OnItemClickListener() {
                     @Override
                     public void onItemClick(Integer position) {
-                        Toast.makeText(MainActivity.this, String.valueOf("点击了" + position), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(ListActivity.this, String.valueOf("点击了" + position), Toast.LENGTH_SHORT).show();
                         // 触发单个item局部更新
                         adapter.updateItemPart(position);
                     }
@@ -170,7 +170,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .addOnItemLongClickListener(new CommonHFAdapter.OnItemLongClickListener() {
                     @Override
                     public void onItemLongClick(Integer position) {
-                        Toast.makeText(MainActivity.this, String.valueOf("长按了" + position), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(ListActivity.this, String.valueOf("长按了" + position), Toast.LENGTH_SHORT).show();
                         if (position < adapter.getData().size() - 2) {
                             // 触发指定范围item都发生局部更新
                             adapter.updateItemPartRange(position - 1, 2);
@@ -224,12 +224,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.btn_add_dyan_footer:
                 footerCyan.setText("新增Footer");
                 footerCyan.setBackgroundColor(Color.CYAN);
-                adapter.addFooterView(mBinding.rv,footerCyan);
+                adapter.addFooterView(mBinding.rv, footerCyan);
                 break;
             case R.id.btn_add_dkgray_footer:
                 footerDkgray.setText("新增Footer");
                 footerDkgray.setBackgroundColor(Color.DKGRAY);
-                adapter.addFooterView(mBinding.rv,footerDkgray);
+                adapter.addFooterView(mBinding.rv, footerDkgray);
                 break;
             case R.id.btn_clear_footer:
                 adapter.clearFooterView();

@@ -1,4 +1,4 @@
-package com.jason.rvlibs.interfaces;
+package com.jason.rvlibs;
 
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -13,7 +13,7 @@ import android.util.Log;
  * Created by liusong on 2017/12/29.
  */
 
-public abstract class OnScrollBottomListener extends RecyclerView.OnScrollListener {
+public abstract class OnScrollFooterListener extends RecyclerView.OnScrollListener {
     //layoutManager type
     private static final int MANAGER_LINEAR = 1;
     private static final int MANAGER_GRID = 2;

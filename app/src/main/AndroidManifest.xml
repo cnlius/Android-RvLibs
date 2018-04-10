@@ -23,7 +23,7 @@
             <!--</intent-filter>-->
         <!--</activity>-->
 
-        <activity android:name=".GridListActivity">
+        <activity android:name=".ListActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

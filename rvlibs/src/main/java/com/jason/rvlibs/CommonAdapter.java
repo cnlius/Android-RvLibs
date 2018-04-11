@@ -46,6 +46,7 @@ public class CommonAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
 
     private View emptyView; // 空数据
     private LoadMoreView loadMoreView; //加载更多的view
+    private boolean isAlwaysShowLoadAll; // 每次加载完成后是否一直显示加载完毕
 
     public CommonAdapter() {
     }
@@ -98,14 +99,81 @@ public class CommonAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
         }
     }
 
+    @Override
+    public int getItemViewType(int position) {
+        if (isEmptyView()) {
+            return VIEW_TYPE_EMPTY;
+        } else if (isHeaderView(position)) {
+            return mHeaderViews.keyAt(position);
+        } else if (isFooterView(position)) {
+            return mFootViews.keyAt(position - getHeaderCount() - dataSet.size());
+        } else if (isLoadMoreView(position)) {
+            return VIEW_TYPE_LOADING;
+        } else { // 数据类型的item
+            if (multiTypeItemSupport != null) {
+                return multiTypeItemSupport.getItemViewType(getDataItemPosition(position));
+            } else {
+                return super.getItemViewType(getDataItemPosition(position));
+            }
+        }
+    }
+
+    @Override
+    public int getItemCount() {
+        if (isEmptyView()) {
+            return 1;
+        } else {
+            return getAllItemCount();
+        }
+    }
+
     /**
-     * 获取数据item在dataSet中的索引
+     * 获取adapter的所有item数量
      *
-     * @param position adapter的position
      * @return
      */
-    private int getDataItemPosition(int position) {
-        return position - getHeaderCount();
+    private int getAllItemCount() {
+        return getHeaderCount() + dataSet.size() + getFooterCount();
+    }
+
+    @Override
+    public void onViewAttachedToWindow(ViewHolder holder) {
+        super.onViewAttachedToWindow(holder);
+        if (isOtherView(holder.getLayoutPosition())) {
+            compatStaggeredGridLayoutManager(holder);
+        }
+    }
+
+    @Override
+    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
+        // item之外的其它view兼容跨整行
+        if (recyclerView.getLayoutManager() instanceof GridLayoutManager) {
+            GridLayoutManager layoutManager = (GridLayoutManager) recyclerView.getLayoutManager();
+            compatGridLayoutManager(layoutManager);
+        }
+    }
+
+    /**
+     * 是否应该显示空数据view
+     *
+     * @return
+     */
+    private boolean isEmptyView() {
+        return emptyView != null && getHeaderCount() == 0 && dataSet.isEmpty() && getFooterCount() == 0;
+    }
+
+    public int getHeaderCount() {
+        return mHeaderViews.size();
+    }
+
+    public int getFooterCount() {
+        return mFootViews.size();
+    }
+
+    public CommonAdapter<T> setEmptyView(View emptyView) {
+        this.emptyView = emptyView;
+        return this;
     }
 
     private void initItemViewListener(ViewHolder holder, final int position) {
@@ -130,61 +198,6 @@ public class CommonAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
                     return true;
                 }
             });
-        }
-    }
-
-    @Override
-    public int getItemCount() {
-        if (isEmptyView()) {
-            return 1;
-        } else {
-            return getAllItemCount();
-        }
-    }
-
-    /**
-     * 获取adapter的所有item数量
-     *
-     * @return
-     */
-    private int getAllItemCount() {
-        return getHeaderCount() + dataSet.size() + getFooterCount();
-    }
-
-    @Override
-    public int getItemViewType(int position) {
-        if (isEmptyView()) {
-            return VIEW_TYPE_EMPTY;
-        } else if (isHeaderView(position)) {
-            return mHeaderViews.keyAt(position);
-        } else if (isFooterView(position)) {
-            return mFootViews.keyAt(position - getHeaderCount() - dataSet.size());
-        } else if (isLoadMoreView(position)) {
-            return VIEW_TYPE_LOADING;
-        } else { // 数据类型的item
-            if (multiTypeItemSupport != null) {
-                return multiTypeItemSupport.getItemViewType(getDataItemPosition(position));
-            } else {
-                return super.getItemViewType(getDataItemPosition(position));
-            }
-        }
-    }
-
-    @Override
-    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
-        super.onAttachedToRecyclerView(recyclerView);
-        // item之外的其它view兼容跨整行
-        if (recyclerView.getLayoutManager() instanceof GridLayoutManager) {
-            GridLayoutManager layoutManager = (GridLayoutManager) recyclerView.getLayoutManager();
-            compatGridLayoutManager(layoutManager);
-        }
-    }
-
-    @Override
-    public void onViewAttachedToWindow(ViewHolder holder) {
-        super.onViewAttachedToWindow(holder);
-        if (isOtherView(holder.getLayoutPosition())) {
-            compatStaggeredGridLayoutManager(holder);
         }
     }
 
@@ -244,17 +257,6 @@ public class CommonAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
         return false;
     }
 
-    /**
-     * 是否是loadMoreView
-     *
-     * @param position adapter的position
-     * @return loadMoreView是dataItem的最后一项
-     */
-    private boolean isLoadMoreView(int position) {
-        return onLoadMoreListener != null && position == getHeaderCount() + dataSet.size() - 1
-                && dataSet.size() > 0 && dataSet.get(getDataItemPosition(position)) == null;
-    }
-
     public List<T> getData() {
         return dataSet;
     }
@@ -276,6 +278,27 @@ public class CommonAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
             }
         }
         return this;
+    }
+
+    /**
+     * 是否是loadMoreView
+     *
+     * @param position adapter的position
+     * @return loadMoreView是dataItem的最后一项
+     */
+    private boolean isLoadMoreView(int position) {
+        return onLoadMoreListener != null && position == getHeaderCount() + dataSet.size() - 1
+                && dataSet.size() > 0 && dataSet.get(getDataItemPosition(position)) == null;
+    }
+
+    /**
+     * 获取数据item在dataSet中的索引
+     *
+     * @param position adapter的position
+     * @return
+     */
+    private int getDataItemPosition(int position) {
+        return position - getHeaderCount();
     }
 
     public void clearData() {
@@ -350,10 +373,6 @@ public class CommonAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
         return position < getHeaderCount();
     }
 
-    public int getHeaderCount() {
-        return mHeaderViews.size();
-    }
-
     public CommonAdapter<T> addFooterView(View view) {
         return addFooterView(null, view);
     }
@@ -384,10 +403,6 @@ public class CommonAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
         return this;
     }
 
-    public int getFooterCount() {
-        return mFootViews.size();
-    }
-
     public void updateFooterView(View view) {
         int index = mFootViews.indexOfValue(view);
         if (index >= 0) {
@@ -414,15 +429,6 @@ public class CommonAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
             return false;
         }
         return position >= getHeaderCount() + dataSet.size();
-    }
-
-    /**
-     * 是否应该显示空数据view
-     *
-     * @return
-     */
-    private boolean isEmptyView() {
-        return emptyView != null && getHeaderCount() == 0 && dataSet.isEmpty() && getFooterCount() == 0;
     }
 
     public void updateItemPart(int position) {
@@ -463,22 +469,8 @@ public class CommonAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
         return this;
     }
 
-    public CommonAdapter<T> setEmptyView(View emptyView) {
-        this.emptyView = emptyView;
-        return this;
-    }
-
     public CommonAdapter<T> setLoadMoreView(LoadMoreView loadMoreView) {
         this.loadMoreView = loadMoreView;
-        return this;
-    }
-
-    public int getPageSize() {
-        return pageSize;
-    }
-
-    public CommonAdapter<T> setPageSize(int pageSize) {
-        this.pageSize = pageSize;
         return this;
     }
 
@@ -516,36 +508,6 @@ public class CommonAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
     }
 
     /**
-     * 完成加载更多
-     */
-    public void loaded() {
-        loadMoreView.onLoaded();
-        resetLoad();
-    }
-
-    /**
-     * 重置加载更多
-     * <p>
-     * 刷新时，必须在clear之前调用
-     */
-    public void resetLoad() {
-        isLoadEnabled = true;
-        loadMoreView.onReset();
-        if (dataSet.size() > 0 && dataSet.get(dataSet.size() - 1) == null) {
-            dataSet.remove(dataSet.size() - 1);
-            notifyItemRemoved(getHeaderCount() + dataSet.size() - 1);
-        }
-    }
-
-    /**
-     * 完成所有数据的加载
-     */
-    public void loadedAll() {
-        isLoadEnabled = false;
-        loadMoreView.onLoadedAll();
-    }
-
-    /**
      * 处理刷新和加载后加载状态(必须在加载后调用)
      *
      * @param isRefresh   是否是刷新
@@ -572,7 +534,47 @@ public class CommonAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
         }
     }
 
-    private boolean isAlwaysShowLoadAll; // 每次加载完成后是否一直显示加载完毕
+    public int getPageSize() {
+        return pageSize;
+    }
+
+    public CommonAdapter<T> setPageSize(int pageSize) {
+        this.pageSize = pageSize;
+        return this;
+    }
+
+    /**
+     * 完成加载更多
+     */
+    public void loaded() {
+        if (onLoadMoreListener == null) return;
+        loadMoreView.onLoaded();
+        resetLoad();
+    }
+
+    /**
+     * 重置加载更多
+     * <p>
+     * 刷新时，必须在clear之前调用
+     */
+    public void resetLoad() {
+        if (onLoadMoreListener == null) return;
+        isLoadEnabled = true;
+        loadMoreView.onReset();
+        if (dataSet.size() > 0 && dataSet.get(dataSet.size() - 1) == null) {
+            dataSet.remove(dataSet.size() - 1);
+            notifyItemRemoved(getHeaderCount() + dataSet.size() - 1);
+        }
+    }
+
+    /**
+     * 完成所有数据的加载
+     */
+    public void loadedAll() {
+        if (onLoadMoreListener == null) return;
+        isLoadEnabled = false;
+        loadMoreView.onLoadedAll();
+    }
 
     /**
      * 每次刷新结束判断是否加载完毕

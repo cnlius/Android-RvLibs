@@ -5,7 +5,6 @@ import android.databinding.ViewDataBinding;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
-import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,32 +20,27 @@ import java.util.List;
  * Created by liusong on 2017/12/8.
  */
 public class CommonAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
+    // 常量
     private static final String PAY_LOAD = "PAY_LOAD"; // 局部刷新标记
     private static final int VIEW_TYPE_EMPTY = 0x2710; // 空view的类型(10000)
-    private static final int VIEW_TYPE_HEADER = 0x186A0; // 头部view类型(100000)
-    private static final int VIEW_TYPE_FOOTER = 0x30D40; // 尾部view类型(200000)
-    private static final int VIEW_TYPE_LOADING = 0x87A23; // 加载view的类型(555555)
-
+    private static final int VIEW_TYPE_LOADING = 0xD903; // 加载view的类型(55555)
+    // 成员变量
     private List<T> dataSet = new ArrayList<>();
     private int itemLayoutId; // 默认item的layout
     private int pageSize = 10; // 每页条目数
     private boolean isLoadEnabled; // 加载时置为不可用的标识
-    private int headerNum = 0; // 已有header view数量(限制100000个)
-    private int footerNum = 0; // 已有footer view数量(限制100000个)
-    // SparseArray删除某条key对应数据时，此key之后的所有数据对应的索引都前移一个单位,末尾索引对应的key缓存，但是无value;
-    private SparseArray<View> mHeaderViews = new SparseArray<>();
-    private SparseArray<View> mFootViews = new SparseArray<>();
     private MultiTypeItemSupport multiTypeItemSupport; // 多类型item支持
 
+    // 监听事件绑定
     private OnDataBindListener onDataBindListener;
     private OnItemClickListener onItemClickListener;
     private OnItemLongClickListener onItemLongClickListener;
     private OnItemPartUpdateListener onItemPartUpdateListener;
     private OnLoadMoreListener onLoadMoreListener;
 
+    // view
     private View emptyView; // 空数据
     private LoadMoreView loadMoreView; //加载更多的view
-    private boolean isAlwaysShowLoadAll; // 每次加载完成后是否一直显示加载完毕
 
     public CommonAdapter() {
     }
@@ -58,22 +52,16 @@ public class CommonAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         Context context = parent.getContext();
-        if (isEmptyView()) { // 空数据
+        if (isEmptyView()) {
             return new ViewHolder(emptyView, false);
-        } else if (mHeaderViews.get(viewType) != null) { // 头部
-            return new ViewHolder(mHeaderViews.get(viewType), false);
-        } else if (mFootViews.get(viewType) != null) { // 底部
-            return new ViewHolder(mFootViews.get(viewType), false);
-        } else if (viewType == VIEW_TYPE_LOADING) { // 加载更多
+        } else if (viewType == VIEW_TYPE_LOADING) {
             return new ViewHolder(loadMoreView, false);
-        } else { // 数据item
-            if (multiTypeItemSupport != null) {
-                View view = LayoutInflater.from(context).inflate(multiTypeItemSupport.getItemLayoutId(viewType), parent, false);
-                return new ViewHolder(view);
-            } else {
-                View view = LayoutInflater.from(context).inflate(itemLayoutId, parent, false);
-                return new ViewHolder(view);
-            }
+        } else if (multiTypeItemSupport != null) {
+            View view = LayoutInflater.from(context).inflate(multiTypeItemSupport.getItemLayoutId(viewType), parent, false);
+            return new ViewHolder(view);
+        } else {
+            View view = LayoutInflater.from(context).inflate(itemLayoutId, parent, false);
+            return new ViewHolder(view);
         }
     }
 
@@ -82,10 +70,10 @@ public class CommonAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
         if (isOtherView(position)) return;
         // dataBinding设置数据到布局中的item
         ViewDataBinding binding = holder.getBinding();
-        binding.setVariable(BR.item, dataSet.get(getDataItemPosition(position)));
+        binding.setVariable(BR.item, dataSet.get(position));
         binding.executePendingBindings();
         // 事件监听
-        initItemViewListener(holder, getDataItemPosition(position));
+        initItemViewListener(holder, position);
     }
 
     @Override
@@ -93,87 +81,10 @@ public class CommonAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
         if (isOtherView(position)) return;
         // 根据payloads不为空，设置局部更新监听
         if (onItemPartUpdateListener != null && payloads != null && !payloads.isEmpty()) {
-            onItemPartUpdateListener.onItemPartUpdate(holder, position - getHeaderCount());
+            onItemPartUpdateListener.onItemPartUpdate(holder, position);
         } else {
             super.onBindViewHolder(holder, position, payloads);
         }
-    }
-
-    @Override
-    public int getItemViewType(int position) {
-        if (isEmptyView()) {
-            return VIEW_TYPE_EMPTY;
-        } else if (isHeaderView(position)) {
-            return mHeaderViews.keyAt(position);
-        } else if (isFooterView(position)) {
-            return mFootViews.keyAt(position - getHeaderCount() - dataSet.size());
-        } else if (isLoadMoreView(position)) {
-            return VIEW_TYPE_LOADING;
-        } else { // 数据类型的item
-            if (multiTypeItemSupport != null) {
-                return multiTypeItemSupport.getItemViewType(getDataItemPosition(position));
-            } else {
-                return super.getItemViewType(getDataItemPosition(position));
-            }
-        }
-    }
-
-    @Override
-    public int getItemCount() {
-        if (isEmptyView()) {
-            return 1;
-        } else {
-            return getAllItemCount();
-        }
-    }
-
-    /**
-     * 获取adapter的所有item数量
-     *
-     * @return
-     */
-    private int getAllItemCount() {
-        return getHeaderCount() + dataSet.size() + getFooterCount();
-    }
-
-    @Override
-    public void onViewAttachedToWindow(ViewHolder holder) {
-        super.onViewAttachedToWindow(holder);
-        if (isOtherView(holder.getLayoutPosition())) {
-            compatStaggeredGridLayoutManager(holder);
-        }
-    }
-
-    @Override
-    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
-        super.onAttachedToRecyclerView(recyclerView);
-        // item之外的其它view兼容跨整行
-        if (recyclerView.getLayoutManager() instanceof GridLayoutManager) {
-            GridLayoutManager layoutManager = (GridLayoutManager) recyclerView.getLayoutManager();
-            compatGridLayoutManager(layoutManager);
-        }
-    }
-
-    /**
-     * 是否应该显示空数据view
-     *
-     * @return
-     */
-    private boolean isEmptyView() {
-        return emptyView != null && getHeaderCount() == 0 && dataSet.isEmpty() && getFooterCount() == 0;
-    }
-
-    public int getHeaderCount() {
-        return mHeaderViews.size();
-    }
-
-    public int getFooterCount() {
-        return mFootViews.size();
-    }
-
-    public CommonAdapter<T> setEmptyView(View emptyView) {
-        this.emptyView = emptyView;
-        return this;
     }
 
     private void initItemViewListener(ViewHolder holder, final int position) {
@@ -201,6 +112,46 @@ public class CommonAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
         }
     }
 
+    @Override
+    public int getItemCount() {
+        if (isEmptyView()) {
+            return 1;
+        } else {
+            return dataSet.size();
+        }
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        if (isEmptyView()) {
+            return VIEW_TYPE_EMPTY;
+        } else if (isLoadMoreView(position)) {
+            return VIEW_TYPE_LOADING;
+        } else if (multiTypeItemSupport != null) {
+            return multiTypeItemSupport.getItemViewType(position);
+        } else {
+            return super.getItemViewType(position);
+        }
+    }
+
+    @Override
+    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
+        // item之外的其它view兼容跨整行
+        if (recyclerView.getLayoutManager() instanceof GridLayoutManager) {
+            GridLayoutManager layoutManager = (GridLayoutManager) recyclerView.getLayoutManager();
+            compatGridLayoutManager(layoutManager);
+        }
+    }
+
+    @Override
+    public void onViewAttachedToWindow(ViewHolder holder) {
+        super.onViewAttachedToWindow(holder);
+        if (isOtherView(holder.getLayoutPosition())) {
+            compatStaggeredGridLayoutManager(holder);
+        }
+    }
+
     /**
      * item占整满整行时，兼容gridLayoutManager
      *
@@ -211,6 +162,7 @@ public class CommonAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
         final GridLayoutManager.SpanSizeLookup oldLookup = gridLayoutManager.getSpanSizeLookup();
         // gridLayoutManager.getSpanCount()=gridLayoutManager的列数
         gridLayoutManager.setSpanCount(gridLayoutManager.getSpanCount());
+
         // 回调设置item的跨度（即表格中的某列跨几列）
         gridLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
             @Override
@@ -250,11 +202,14 @@ public class CommonAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
      * @return
      */
     private boolean isOtherView(int position) {
-        if (isEmptyView() || isHeaderView(position)
-                || isFooterView(position) || isLoadMoreView(position)) {
+        if (isEmptyView() || isLoadMoreView(position)) {
             return true;
         }
         return false;
+    }
+
+    private boolean isLoadMoreView(int position) {
+        return onLoadMoreListener != null && position == dataSet.size() - 1 && dataSet.size() > 0 && dataSet.get(position) == null;
     }
 
     public List<T> getData() {
@@ -267,38 +222,17 @@ public class CommonAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
                 dataSet.addAll(data);
                 // 上个状态是显示空view时，需要全部重刷；
                 notifyDataSetChanged();
-            } else if (isLoadMoreView(getHeaderCount() + dataSet.size() - 1)) { // 加载更多
+            } else if (isLoadMoreView(dataSet.size() - 1)) { // 加载更多
                 int oldSize = dataSet.size();
                 dataSet.addAll(oldSize - 1, data);
-                notifyItemRangeInserted(getHeaderCount() + oldSize - 1, data.size());
+                notifyItemRangeInserted(oldSize - 1, data.size());
             } else {
                 int oldSize = dataSet.size();
                 dataSet.addAll(data);
-                notifyItemRangeInserted(getHeaderCount() + oldSize, data.size());
+                notifyItemRangeInserted(oldSize, data.size());
             }
         }
         return this;
-    }
-
-    /**
-     * 是否是loadMoreView
-     *
-     * @param position adapter的position
-     * @return loadMoreView是dataItem的最后一项
-     */
-    private boolean isLoadMoreView(int position) {
-        return onLoadMoreListener != null && position == getHeaderCount() + dataSet.size() - 1
-                && dataSet.size() > 0 && dataSet.get(getDataItemPosition(position)) == null;
-    }
-
-    /**
-     * 获取数据item在dataSet中的索引
-     *
-     * @param position adapter的position
-     * @return
-     */
-    private int getDataItemPosition(int position) {
-        return position - getHeaderCount();
     }
 
     public void clearData() {
@@ -307,136 +241,21 @@ public class CommonAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
         notifyDataSetChanged();
     }
 
-    public CommonAdapter<T> addHeaderView(View view) {
-        return addHeaderView(null, view);
-    }
-
     /**
-     * 添加头部view,重复添加相同的对象无效
+     * 是否应该显示空数据view
      *
-     * @param recyclerView 不为null时，滑动到添加的header
-     * @param view         headerView
+     * @return
      */
-    public CommonAdapter<T> addHeaderView(RecyclerView recyclerView, View view) {
-        try {
-            if (view == null) return this;
-            // view在集合中的索引
-            int index = mHeaderViews.indexOfValue(view);
-            if (index < 0) {
-                if (isEmptyView()) {
-                    mHeaderViews.put(VIEW_TYPE_HEADER + headerNum, view);
-                    headerNum++;
-                    notifyDataSetChanged();
-                } else {
-                    mHeaderViews.put(VIEW_TYPE_HEADER + headerNum, view);
-                    headerNum++;
-                    notifyItemInserted(getHeaderCount() - 1);
-                    if (recyclerView != null && getItemCount() > 0) {
-                        recyclerView.smoothScrollToPosition(getHeaderCount() - 1);
-                    }
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return this;
-    }
-
-    public void updateHeaderView(View view) {
-        int index = mHeaderViews.indexOfValue(view);
-        if (index >= 0) {
-            notifyItemChanged(index, PAY_LOAD);
-        }
-    }
-
-    public void removeHeaderView(View view) {
-        if (view == null) return;
-        int index = mHeaderViews.indexOfValue(view);
-        if (index < 0) return;
-        mHeaderViews.removeAt(index);
-        notifyDataSetChanged();
-    }
-
-    /**
-     * 如果用notifyXXRemoved清除，动画没结束前进行添加会报错
-     */
-    public void clearHeaderView() {
-        if (mHeaderViews.size() == 0) return;
-        mHeaderViews.clear();
-        notifyDataSetChanged();
-    }
-
-    private boolean isHeaderView(int position) {
-        if (isEmptyView()) { //header 上次显示的可能是空数据
-            return false;
-        }
-        return position < getHeaderCount();
-    }
-
-    public CommonAdapter<T> addFooterView(View view) {
-        return addFooterView(null, view);
-    }
-
-    /**
-     * @param recyclerView null时不自动滑动到底部
-     */
-    public CommonAdapter<T> addFooterView(RecyclerView recyclerView, View view) {
-        if (getAllItemCount() > 0 && isLoadMoreView(getAllItemCount() - 1)) {
-            throw new IllegalStateException("can't add footer when there is load more view");
-        }
-        if (view == null) return this;
-        int index = mFootViews.indexOfValue(view);
-        if (index < 0) {
-            if (isEmptyView()) {
-                mFootViews.put(VIEW_TYPE_FOOTER + footerNum, view);
-                footerNum++;
-                notifyDataSetChanged();
-            } else {
-                mFootViews.put(VIEW_TYPE_FOOTER + footerNum, view);
-                footerNum++;
-                notifyItemInserted(getAllItemCount() - 1);
-                if (recyclerView != null && getAllItemCount() > 0) {
-                    recyclerView.smoothScrollToPosition(getAllItemCount() - 1);
-                }
-            }
-        }
-        return this;
-    }
-
-    public void updateFooterView(View view) {
-        int index = mFootViews.indexOfValue(view);
-        if (index >= 0) {
-            notifyItemChanged(getHeaderCount() + dataSet.size() + index, PAY_LOAD);
-        }
-    }
-
-    public void removeFooterView(View view) {
-        if (view == null) return;
-        int index = mFootViews.indexOfValue(view);
-        if (index < 0) return;
-        mFootViews.removeAt(index);
-        notifyDataSetChanged();
-    }
-
-    public void clearFooterView() {
-        if (mFootViews.size() == 0) return;
-        mFootViews.clear();
-        notifyDataSetChanged();
-    }
-
-    private boolean isFooterView(int position) {
-        if (isEmptyView()) {
-            return false;
-        }
-        return position >= getHeaderCount() + dataSet.size();
+    private boolean isEmptyView() {
+        return emptyView != null && dataSet.isEmpty();
     }
 
     public void updateItemPart(int position) {
-        notifyItemChanged(getHeaderCount() + position, PAY_LOAD);
+        notifyItemChanged(position, PAY_LOAD);
     }
 
     public void updateItemPartRange(int positionStart, int itemCount) {
-        notifyItemRangeChanged(getHeaderCount() + positionStart, itemCount, PAY_LOAD);
+        notifyItemRangeChanged(positionStart, itemCount, PAY_LOAD);
     }
 
     public CommonAdapter<T> bindRecyclerView(RecyclerView recyclerView) {
@@ -469,8 +288,22 @@ public class CommonAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
         return this;
     }
 
+    public CommonAdapter<T> setEmptyView(View emptyView) {
+        this.emptyView = emptyView;
+        return this;
+    }
+
     public CommonAdapter<T> setLoadMoreView(LoadMoreView loadMoreView) {
         this.loadMoreView = loadMoreView;
+        return this;
+    }
+
+    public int getPageSize() {
+        return pageSize;
+    }
+
+    public CommonAdapter<T> setPageSize(int pageSize) {
+        this.pageSize = pageSize;
         return this;
     }
 
@@ -478,26 +311,23 @@ public class CommonAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
         isLoadEnabled = loadEnabled;
     }
 
-    /**
-     * 包含footer时禁止上拉加载动作
-     */
     public CommonAdapter<T> addOnLoadMoreListener(final RecyclerView recyclerView, final OnLoadMoreListener onLoadMoreListener) {
         this.onLoadMoreListener = onLoadMoreListener;
         isLoadEnabled = true;
         if (loadMoreView == null) {
             loadMoreView = new DefaultLoadMoreView(recyclerView.getContext());
         }
-        recyclerView.addOnScrollListener(new OnScrollFooterListener() {
+        recyclerView.addOnScrollListener(new OnScrollFooterListener(){
             @Override
             public void onBottom() {
-                if (getFooterCount() == 0 && isLoadEnabled && dataSet.size() >= pageSize) {
+                if (isLoadEnabled && dataSet.size() >= pageSize) {
                     // 加载开始时的状态
                     loadMoreView.onReset();
                     loadMoreView.onLoading();
 
                     isLoadEnabled = false;
                     dataSet.add(null); // 加入一个null代表load item
-                    int position = getHeaderCount() + dataSet.size() - 1;
+                    int position = dataSet.size() - 1;
                     notifyItemInserted(position);
                     recyclerView.smoothScrollToPosition(position);
                     onLoadMoreListener.onLoadMore();
@@ -505,6 +335,36 @@ public class CommonAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
             }
         });
         return this;
+    }
+
+    /**
+     * 完成加载更多
+     */
+    public void loaded() {
+        loadMoreView.onLoaded();
+        resetLoad();
+    }
+
+    /**
+     * 重置加载更多
+     * <p>
+     * 刷新时，必须在clear之前调用
+     */
+    public void resetLoad() {
+        isLoadEnabled = true;
+        loadMoreView.onReset();
+        if (dataSet.size() > 0 && dataSet.get(dataSet.size() - 1) == null) {
+            dataSet.remove(dataSet.size() - 1);
+            notifyItemRemoved(dataSet.size() - 1);
+        }
+    }
+
+    /**
+     * 完成所有数据的加载
+     */
+    public void loadedAll() {
+        isLoadEnabled = false;
+        loadMoreView.onLoadedAll();
     }
 
     /**
@@ -520,9 +380,10 @@ public class CommonAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
                 isLoadEnabled = true;
             } else {
                 isLoadEnabled = false;
-                if (getFooterCount() == 0 && isAlwaysShowLoadAll) {
+                if (isAlwaysShowLoadAll) {
                     dataSet.add(null); // 加入一个null代表load item
                     loadedAll();
+                    notifyDataSetChanged();
                 }
             }
         } else { // 加载
@@ -534,47 +395,7 @@ public class CommonAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
         }
     }
 
-    public int getPageSize() {
-        return pageSize;
-    }
-
-    public CommonAdapter<T> setPageSize(int pageSize) {
-        this.pageSize = pageSize;
-        return this;
-    }
-
-    /**
-     * 完成加载更多
-     */
-    public void loaded() {
-        if (onLoadMoreListener == null) return;
-        loadMoreView.onLoaded();
-        resetLoad();
-    }
-
-    /**
-     * 重置加载更多
-     * <p>
-     * 刷新时，必须在clear之前调用
-     */
-    public void resetLoad() {
-        if (onLoadMoreListener == null) return;
-        isLoadEnabled = true;
-        loadMoreView.onReset();
-        if (dataSet.size() > 0 && dataSet.get(dataSet.size() - 1) == null) {
-            dataSet.remove(dataSet.size() - 1);
-            notifyItemRemoved(getHeaderCount() + dataSet.size() - 1);
-        }
-    }
-
-    /**
-     * 完成所有数据的加载
-     */
-    public void loadedAll() {
-        if (onLoadMoreListener == null) return;
-        isLoadEnabled = false;
-        loadMoreView.onLoadedAll();
-    }
+    private boolean isAlwaysShowLoadAll; // 每次加载完成后是否一直显示加载完毕
 
     /**
      * 每次刷新结束判断是否加载完毕

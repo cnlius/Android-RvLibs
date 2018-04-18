@@ -8,7 +8,7 @@ import android.support.v7.widget.GridLayoutManager;
 import android.view.View;
 
 import com.jason.app.databinding.ActivityGridListBinding;
-import com.jason.rvlibs.CommonAdapter;
+import com.jason.rvlibs.CommonHFAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +20,7 @@ import java.util.List;
 public class GridListActivity extends AppCompatActivity implements View.OnClickListener {
 
     private ActivityGridListBinding mBinding;
-    private CommonAdapter<String> adapter;
+    private CommonHFAdapter<String> adapter;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -31,7 +31,7 @@ public class GridListActivity extends AppCompatActivity implements View.OnClickL
 
     private void initView() {
         mBinding.rv.setLayoutManager(new GridLayoutManager(this, 3));
-        adapter = new CommonAdapter<String>(R.layout.item_grid_text)
+        adapter = new CommonHFAdapter<String>(R.layout.item_grid_text)
                 .bindRecyclerView(mBinding.rv);
     }
 

@@ -15,15 +15,15 @@ import android.widget.Toast;
 import com.jason.app.databinding.ActivityListBinding;
 import com.jason.app.databinding.ItemImageTextBinding;
 import com.jason.app.databinding.ItemTextTestBinding;
-import com.jason.rvlibs.CommonAdapter;
+import com.jason.rvlibs.CommonHFAdapter;
 import com.jason.rvlibs.ViewHolder;
 
 import java.util.List;
 
-public class ListActivity extends AppCompatActivity implements View.OnClickListener, SwipeRefreshLayout.OnRefreshListener, CommonAdapter.OnLoadMoreListener {
+public class ListActivity extends AppCompatActivity implements View.OnClickListener, SwipeRefreshLayout.OnRefreshListener, CommonHFAdapter.OnLoadMoreListener {
 
     private ActivityListBinding mBinding;
-    private CommonAdapter<String> adapter;
+    private CommonHFAdapter<String> adapter;
     private static final int ITEM_TYPE_TEXT = 0x1;
     private static final int ITEM_TYPE_IMAGE_TEXT = 0x2;
 
@@ -106,15 +106,15 @@ public class ListActivity extends AppCompatActivity implements View.OnClickListe
         mBinding.rv.setHasFixedSize(true);
         // --------------------------
         View emptyView = LayoutInflater.from(this).inflate(R.layout.layout_no_data, mBinding.rv, false);
-        adapter = new CommonAdapter<String>()
+        adapter = new CommonHFAdapter<String>()
                 .setPageSize(5)
                 .setAlwaysShowLoadAll(true)
-                .addHeaderView(headerRed)
-                .addFooterView(footerCyan)
+//                .addHeaderView(headerRed)
+//                .addFooterView(footerCyan)
                 .setItemLayoutId(R.layout.item_text_test)
 //                .addData(DataUtils.createStringList(3))
                 .setEmptyView(emptyView)
-                .addMultiItemSupport(new CommonAdapter.MultiTypeItemSupport() {
+                .addMultiItemSupport(new CommonHFAdapter.MultiTypeItemSupport() {
                     @Override
                     public int getItemLayoutId(int viewType) {
                         if (viewType == ITEM_TYPE_TEXT) {
@@ -133,7 +133,7 @@ public class ListActivity extends AppCompatActivity implements View.OnClickListe
                         }
                     }
                 })
-                .addOnDataBindListener(new CommonAdapter.OnDataBindListener() {
+                .addOnDataBindListener(new CommonHFAdapter.OnDataBindListener() {
                     @Override
                     public void onDataBind(ViewHolder holder, Integer position) {
                         if (holder.getBinding() instanceof ItemTextTestBinding) {
@@ -147,7 +147,7 @@ public class ListActivity extends AppCompatActivity implements View.OnClickListe
                         }
                     }
                 })
-                .addOnItemPartUpdateListener(new CommonAdapter.OnItemPartUpdateListener() {
+                .addOnItemPartUpdateListener(new CommonHFAdapter.OnItemPartUpdateListener() {
                     @Override
                     public void onItemPartUpdate(ViewHolder holder, Integer position) {
                         if (holder.getBinding() instanceof ItemTextTestBinding) {
@@ -159,7 +159,7 @@ public class ListActivity extends AppCompatActivity implements View.OnClickListe
                         }
                     }
                 })
-                .addOnItemClickListener(new CommonAdapter.OnItemClickListener() {
+                .addOnItemClickListener(new CommonHFAdapter.OnItemClickListener() {
                     @Override
                     public void onItemClick(Integer position) {
                         Toast.makeText(ListActivity.this, String.valueOf("点击了" + position), Toast.LENGTH_SHORT).show();
@@ -167,7 +167,7 @@ public class ListActivity extends AppCompatActivity implements View.OnClickListe
                         adapter.updateItemPart(position);
                     }
                 })
-                .addOnItemLongClickListener(new CommonAdapter.OnItemLongClickListener() {
+                .addOnItemLongClickListener(new CommonHFAdapter.OnItemLongClickListener() {
                     @Override
                     public void onItemLongClick(Integer position) {
                         Toast.makeText(ListActivity.this, String.valueOf("长按了" + position), Toast.LENGTH_SHORT).show();
@@ -262,8 +262,8 @@ public class ListActivity extends AppCompatActivity implements View.OnClickListe
                 List<String> tempData;
                 if (isRefresh) { // 刷新
                     mBinding.refresh.setRefreshing(false);
+                    adapter.resetLoad(); // 刷新时，必须在clear之前调用
                     if (adapter.getData().size() != 0) {
-                        adapter.resetLoad(); // 刷新时，必须在clear之前调用
                         adapter.clearData();
                     }
                     tempData = DataUtils.createStringList(adapter.getData().size(), 3);
@@ -271,6 +271,7 @@ public class ListActivity extends AppCompatActivity implements View.OnClickListe
                     // 加载更多时，dataSet多了一个null作为loadMoreView的占位
                     tempData = DataUtils.createStringList(adapter.getData().size() - 1, 2);
                 }
+                tempData.clear();
                 adapter.addData(tempData);
                 adapter.handleLoadStatus(isRefresh, tempData.size());
             }

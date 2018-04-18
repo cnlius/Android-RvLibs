@@ -20,7 +20,7 @@ import java.util.List;
  * 公共的adapter
  * Created by liusong on 2017/12/8.
  */
-public class CommonHFAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
+public class FreeHFAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
     private static final String PAY_LOAD = "PAY_LOAD"; // 局部刷新标记
     private static final int VIEW_TYPE_EMPTY = 0x2710; // 空view的类型(10000)
     private static final int VIEW_TYPE_HEADER = 0x186A0; // 头部view类型(100000)
@@ -48,10 +48,10 @@ public class CommonHFAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
     private LoadMoreView loadMoreView; //加载更多的view
     private boolean isAlwaysShowLoadAll; // 每次加载完成后是否一直显示加载完毕
 
-    public CommonHFAdapter() {
+    public FreeHFAdapter() {
     }
 
-    public CommonHFAdapter(int itemLayoutId) {
+    public FreeHFAdapter(int itemLayoutId) {
         this.itemLayoutId = itemLayoutId;
     }
 
@@ -171,7 +171,7 @@ public class CommonHFAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
         return mFootViews.size();
     }
 
-    public CommonHFAdapter<T> setEmptyView(View emptyView) {
+    public FreeHFAdapter<T> setEmptyView(View emptyView) {
         this.emptyView = emptyView;
         return this;
     }
@@ -261,7 +261,7 @@ public class CommonHFAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
         return dataSet;
     }
 
-    public CommonHFAdapter<T> addData(List<T> data) {
+    public FreeHFAdapter<T> addData(List<T> data) {
         if (data != null && !data.isEmpty()) {
             if (isEmptyView()) { // 空数据
                 dataSet.addAll(data);
@@ -307,7 +307,7 @@ public class CommonHFAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
         notifyDataSetChanged();
     }
 
-    public CommonHFAdapter<T> addHeaderView(View view) {
+    public FreeHFAdapter<T> addHeaderView(View view) {
         return addHeaderView(null, view);
     }
 
@@ -317,7 +317,7 @@ public class CommonHFAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
      * @param recyclerView 不为null时，滑动到添加的header
      * @param view         headerView
      */
-    public CommonHFAdapter<T> addHeaderView(RecyclerView recyclerView, View view) {
+    public FreeHFAdapter<T> addHeaderView(RecyclerView recyclerView, View view) {
         try {
             if (view == null) return this;
             // view在集合中的索引
@@ -373,14 +373,14 @@ public class CommonHFAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
         return position < getHeaderCount();
     }
 
-    public CommonHFAdapter<T> addFooterView(View view) {
+    public FreeHFAdapter<T> addFooterView(View view) {
         return addFooterView(null, view);
     }
 
     /**
      * @param recyclerView null时不自动滑动到底部
      */
-    public CommonHFAdapter<T> addFooterView(RecyclerView recyclerView, View view) {
+    public FreeHFAdapter<T> addFooterView(RecyclerView recyclerView, View view) {
         if (getAllItemCount() > 0 && isLoadMoreView(getAllItemCount() - 1)) {
             throw new IllegalStateException("can't add footer when there is load more view");
         }
@@ -439,37 +439,37 @@ public class CommonHFAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
         notifyItemRangeChanged(getHeaderCount() + positionStart, itemCount, PAY_LOAD);
     }
 
-    public CommonHFAdapter<T> bindRecyclerView(RecyclerView recyclerView) {
+    public FreeHFAdapter<T> bindRecyclerView(RecyclerView recyclerView) {
         recyclerView.setAdapter(this);
         return this;
     }
 
-    public CommonHFAdapter<T> setItemLayoutId(int itemLayoutId) {
+    public FreeHFAdapter<T> setItemLayoutId(int itemLayoutId) {
         this.itemLayoutId = itemLayoutId;
         return this;
     }
 
-    public CommonHFAdapter<T> addOnDataBindListener(OnDataBindListener onDataBindListener) {
+    public FreeHFAdapter<T> addOnDataBindListener(OnDataBindListener onDataBindListener) {
         this.onDataBindListener = onDataBindListener;
         return this;
     }
 
-    public CommonHFAdapter<T> addOnItemClickListener(OnItemClickListener onItemClickListener) {
+    public FreeHFAdapter<T> addOnItemClickListener(OnItemClickListener onItemClickListener) {
         this.onItemClickListener = onItemClickListener;
         return this;
     }
 
-    public CommonHFAdapter<T> addOnItemLongClickListener(OnItemLongClickListener onItemLongClickListener) {
+    public FreeHFAdapter<T> addOnItemLongClickListener(OnItemLongClickListener onItemLongClickListener) {
         this.onItemLongClickListener = onItemLongClickListener;
         return this;
     }
 
-    public CommonHFAdapter<T> addOnItemPartUpdateListener(OnItemPartUpdateListener onItemPartUpdateListener) {
+    public FreeHFAdapter<T> addOnItemPartUpdateListener(OnItemPartUpdateListener onItemPartUpdateListener) {
         this.onItemPartUpdateListener = onItemPartUpdateListener;
         return this;
     }
 
-    public CommonHFAdapter<T> setLoadMoreView(LoadMoreView loadMoreView) {
+    public FreeHFAdapter<T> setLoadMoreView(LoadMoreView loadMoreView) {
         this.loadMoreView = loadMoreView;
         return this;
     }
@@ -481,7 +481,7 @@ public class CommonHFAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
     /**
      * 包含footer时禁止上拉加载动作
      */
-    public CommonHFAdapter<T> addOnLoadMoreListener(final RecyclerView recyclerView, final OnLoadMoreListener onLoadMoreListener) {
+    public FreeHFAdapter<T> addOnLoadMoreListener(final RecyclerView recyclerView, final OnLoadMoreListener onLoadMoreListener) {
         this.onLoadMoreListener = onLoadMoreListener;
         isLoadEnabled = true;
         if (loadMoreView == null) {
@@ -539,7 +539,7 @@ public class CommonHFAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
         return pageSize;
     }
 
-    public CommonHFAdapter<T> setPageSize(int pageSize) {
+    public FreeHFAdapter<T> setPageSize(int pageSize) {
         this.pageSize = pageSize;
         return this;
     }
@@ -582,12 +582,12 @@ public class CommonHFAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
      *
      * @param isAlways
      */
-    public CommonHFAdapter<T> setAlwaysShowLoadAll(boolean isAlways) {
+    public FreeHFAdapter<T> setAlwaysShowLoadAll(boolean isAlways) {
         this.isAlwaysShowLoadAll = isAlways;
         return this;
     }
 
-    public CommonHFAdapter<T> addMultiItemSupport(MultiTypeItemSupport multiItemSupport) {
+    public FreeHFAdapter<T> addMultiItemSupport(MultiTypeItemSupport multiItemSupport) {
         this.multiTypeItemSupport = multiItemSupport;
         return this;
     }

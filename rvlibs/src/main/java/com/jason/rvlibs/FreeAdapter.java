@@ -19,7 +19,7 @@ import java.util.List;
  * 公共的adapter
  * Created by liusong on 2017/12/8.
  */
-public class CommonAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
+public class FreeAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
     // 常量
     private static final String PAY_LOAD = "PAY_LOAD"; // 局部刷新标记
     private static final int VIEW_TYPE_EMPTY = 0x2710; // 空view的类型(10000)
@@ -42,10 +42,10 @@ public class CommonAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
     private View emptyView; // 空数据
     private LoadMoreView loadMoreView; //加载更多的view
 
-    public CommonAdapter() {
+    public FreeAdapter() {
     }
 
-    public CommonAdapter(int itemLayoutId) {
+    public FreeAdapter(int itemLayoutId) {
         this.itemLayoutId = itemLayoutId;
     }
 
@@ -216,7 +216,7 @@ public class CommonAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
         return dataSet;
     }
 
-    public CommonAdapter<T> addData(List<T> data) {
+    public FreeAdapter<T> addData(List<T> data) {
         if (data != null && !data.isEmpty()) {
             if (isEmptyView()) { // 空数据
                 dataSet.addAll(data);
@@ -258,42 +258,42 @@ public class CommonAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
         notifyItemRangeChanged(positionStart, itemCount, PAY_LOAD);
     }
 
-    public CommonAdapter<T> bindRecyclerView(RecyclerView recyclerView) {
+    public FreeAdapter<T> bindRecyclerView(RecyclerView recyclerView) {
         recyclerView.setAdapter(this);
         return this;
     }
 
-    public CommonAdapter<T> setItemLayoutId(int itemLayoutId) {
+    public FreeAdapter<T> setItemLayoutId(int itemLayoutId) {
         this.itemLayoutId = itemLayoutId;
         return this;
     }
 
-    public CommonAdapter<T> addOnDataBindListener(OnDataBindListener onDataBindListener) {
+    public FreeAdapter<T> addOnDataBindListener(OnDataBindListener onDataBindListener) {
         this.onDataBindListener = onDataBindListener;
         return this;
     }
 
-    public CommonAdapter<T> addOnItemClickListener(OnItemClickListener onItemClickListener) {
+    public FreeAdapter<T> addOnItemClickListener(OnItemClickListener onItemClickListener) {
         this.onItemClickListener = onItemClickListener;
         return this;
     }
 
-    public CommonAdapter<T> addOnItemLongClickListener(OnItemLongClickListener onItemLongClickListener) {
+    public FreeAdapter<T> addOnItemLongClickListener(OnItemLongClickListener onItemLongClickListener) {
         this.onItemLongClickListener = onItemLongClickListener;
         return this;
     }
 
-    public CommonAdapter<T> addOnItemPartUpdateListener(OnItemPartUpdateListener onItemPartUpdateListener) {
+    public FreeAdapter<T> addOnItemPartUpdateListener(OnItemPartUpdateListener onItemPartUpdateListener) {
         this.onItemPartUpdateListener = onItemPartUpdateListener;
         return this;
     }
 
-    public CommonAdapter<T> setEmptyView(View emptyView) {
+    public FreeAdapter<T> setEmptyView(View emptyView) {
         this.emptyView = emptyView;
         return this;
     }
 
-    public CommonAdapter<T> setLoadMoreView(LoadMoreView loadMoreView) {
+    public FreeAdapter<T> setLoadMoreView(LoadMoreView loadMoreView) {
         this.loadMoreView = loadMoreView;
         return this;
     }
@@ -302,7 +302,7 @@ public class CommonAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
         return pageSize;
     }
 
-    public CommonAdapter<T> setPageSize(int pageSize) {
+    public FreeAdapter<T> setPageSize(int pageSize) {
         this.pageSize = pageSize;
         return this;
     }
@@ -311,7 +311,7 @@ public class CommonAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
         isLoadEnabled = loadEnabled;
     }
 
-    public CommonAdapter<T> addOnLoadMoreListener(final RecyclerView recyclerView, final OnLoadMoreListener onLoadMoreListener) {
+    public FreeAdapter<T> addOnLoadMoreListener(final RecyclerView recyclerView, final OnLoadMoreListener onLoadMoreListener) {
         this.onLoadMoreListener = onLoadMoreListener;
         isLoadEnabled = true;
         if (loadMoreView == null) {
@@ -402,12 +402,12 @@ public class CommonAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
      *
      * @param isAlways
      */
-    public CommonAdapter<T> setAlwaysShowLoadAll(boolean isAlways) {
+    public FreeAdapter<T> setAlwaysShowLoadAll(boolean isAlways) {
         this.isAlwaysShowLoadAll = isAlways;
         return this;
     }
 
-    public CommonAdapter<T> addMultiItemSupport(MultiTypeItemSupport multiItemSupport) {
+    public FreeAdapter<T> addMultiItemSupport(MultiTypeItemSupport multiItemSupport) {
         this.multiTypeItemSupport = multiItemSupport;
         return this;
     }
